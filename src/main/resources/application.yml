@@ -1,0 +1,5 @@
+server:
+  port: 6111
+
+storage:
+  /storage

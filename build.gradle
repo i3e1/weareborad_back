@@ -1,6 +1,8 @@
 plugins {
     id 'org.springframework.boot' version '2.6.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    //querydsl 추가
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
 }
 
@@ -12,25 +14,92 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    querydsl.extendsFrom compileClasspath
 }
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    set('snippetsDir', file("build/generated-snippets")) // 문서 저장위치
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.jetbrains:annotations:20.1.0'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-logging', version: '2.6.2'
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // 파라미터 값 확인(인증, Bean Validation)을 위해
+
+    // database
+//    runtimeOnly 'com.h2database:h2'
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java // 최신버전 받아짐..
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.41'
+//    runtimeOnly 'mysql:mysql-connector-java'
+
+    //lombok
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+
+    //querydsl 추가
+    implementation 'com.querydsl:querydsl-jpa'
+
+    // 쿼리dsl 에서 쿼리가 ?로 나오는데 ?를 바로 볼 수 있게 됨. 성능 테스트 후.. 추가할지 .. 정하고
+    // 비지니스적으로 로그를 남겨야하면 추가하면 좋다.
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
+
+    // jwt
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
+
+    // java에서 json 형태를 만들어주는 라이브러리. 백엔드 하다보면 쓸 일이 언젠간 생깁니다.
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+
+    annotationProcessor 'org.projectlombok:lombok' // 이게 있어야 정상작동.
+    annotationProcessor group: 'com.querydsl', name: 'querydsl-apt', version: '4.3.1'
+
+    // swagger ( apidoc , mockmvc 적용이 안돼서 apidocs?? 그건 포기함. )
+    implementation "io.springfox:springfox-boot-starter:3.0.0"
+
+    //spring boot mocking framework
+    implementation 'org.mockito:mockito-core:4.4.0'
+
+    // 테스트용------------------------------
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+//            { // junit 제외
+//        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+//    }
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
+
+//querydsl 추가 시작
+// 이하의 설정은 ide, ide의 버전마다 바뀔 수 있음
+//
+
+def querydslDir = "$buildDir/generated/querydsl"
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+sourceSets {
+    main.java.srcDir querydslDir
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+compileQuerydsl.doFirst {
+    // Q파일이 존재하면 삭제 하도록... 있으면 충돌남.
+    if(file(querydslDir).exists() ) delete(file(querydslDir))
+}
+
+//출처: https://dev-coco.tistory.com/89 [슬기로운 개발생활😃]
+//querydsl 추가 끝
 
 tasks.named('test') {
     useJUnitPlatform()
