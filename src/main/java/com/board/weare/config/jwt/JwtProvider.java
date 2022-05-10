@@ -1,6 +1,9 @@
 package com.board.weare.config.jwt;
 
 import com.board.weare.entity.Account;
+import com.board.weare.exception.entities.jwt.TokenExpiredException;
+import com.board.weare.exception.entities.jwt.TokenIsNotGiven;
+import com.board.weare.service.AccountServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

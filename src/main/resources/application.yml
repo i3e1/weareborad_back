@@ -1,5 +1,78 @@
+
+
+spring:
+  profiles: # 테스트
+    active: local # 로컬에서 돌린다는 뜻
+    # 강사는 local, dev (개발), real (실서비스) 로 사용한다 함.
+
+  servlet:
+    multipart:
+      max-request-size: 10240KB #최대 요청 사이즈 : 10MB
+      max-file-size: 10240KB #최대 파일 사이즈 : 10MB
+
+
+  jwt:
+    secret: goblepol@$&
+
+  datasource:
+    url: jdbc:mysql://14.45.108.71:3306/mcall?serverTimezone=UTC&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
+    username: mcallroot
+    password: jsoljsolution0720!!
+    driver-class-name: com.mysql.jdbc.Driver # com.mysql.jdbc.Driver deprecated
+
+  #  datasource:
+  #    url: jdbc:h2:tcp://localhost/~/querydsl
+  #    username: sa
+  #    password:
+  #    driver-class-name: org.h2.Driver
+
+  mvc:
+    format:
+      date: yyyy-MM-dd
+      date-time: yyyy-MM-dd HH:mm:ss
+      time: HH:mm:ss
+
+  jpa:
+    hibernate:
+      ddl-auto: update # 자동생성 설정 테스트(공부시 create권장.)
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect # DB Engine을 innoDB로 지정. 안하면 My 뭐시기.
+        #        show_sql: true # sout으로 출력이므로 주석처리. 로거 사용시 자동으로 나옴.
+        format_sql: true
+#        use_sql_comments: true # true -> jpql 볼 수 있음
+#  jackson:
+#    serialization:
+#      WRITE_DATES_AS_TIMESTAMPS: false
+logging:
+  pattern:
+    file: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
+  level:
+    com.jsol.mcall : debug
+#    org.hibernate.SQL: debug
+#    org.hibernate.type: trace # 디비 로그에 나오는 ?를 볼 수 있게 됨. 타입, 밸류 나옴. 기존에 나오는 쿼리에 바로 보이지 않음.
+
+
+
+
 server:
   port: 6111
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-response: true
 
+#   storage.location=files
 storage:
-  /storage
+  location:
+    files
+
+#security:
+#  oauth2:
+#    jwt:
+#      key-uri: http://localhost:8088/oauth/token_key
+

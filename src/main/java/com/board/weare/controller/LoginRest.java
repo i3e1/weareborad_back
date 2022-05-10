@@ -1,7 +1,10 @@
 package com.board.weare.controller;
 
 import com.board.weare.dto.AccountDto;
+import com.board.weare.dto.CustomUserDetails;
 import com.board.weare.entity.Account;
+import com.board.weare.service.AccountServiceImpl;
+import com.board.weare.service.interfaces.AccountService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -12,7 +15,10 @@ import com.jsol.mcall.ext_server.auth.MCallAuthApi;
 import com.jsol.mcall.ext_server.idm.MCallIdmApiServiceImpl;
 import com.jsol.mcall.service.AccountServiceImpl;
 import com.jsol.mcall.service.ShopServiceImpl;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +34,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class LoginRest {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final AccountServiceImpl accountService;
-    private final MCallAuthApi authApi;
-    private final MCallIdmApiServiceImpl idmApi;
-    private final ShopServiceImpl shopService;
     private Gson gson;
     private JsonObject jsonObject;
 
@@ -43,73 +47,74 @@ public class LoginRest {
         gson = new GsonBuilder().create();
     }
 
-    @GetMapping("/test-allusers")
-    public ResponseEntity<?> testAllUsers() {
-        List<Account> all = accountService.getAll();
-        return new ResponseEntity<>(all, HttpStatus.OK);
-    }
+    @ApiOperation(value = "일반 회원 등록", notes = "회원정보를 등록한다.")
+    @PostMapping("/user")
+    public ResponseEntity<?> save(@RequestBody AccountDto.Post userDto) {
 
-    @GetMapping(value = "/valid/{id}", produces = "application/json;charset=UTF-8")
-    public ResponseEntity<?> valid(@PathVariable String id) {
-        String s = authApi.get("/users/valid/" + id);
-        return new ResponseEntity<>(s, HttpStatus.OK);
-    }
-
-
-    @PostMapping(value = "/login", produces = "application/json;charset=UTF-8")
-    public ResponseEntity<?> login(@RequestBody AccountDto.LoginRequestDto loginDto) {
-        String id = loginDto.getUsername();
-        String password = loginDto.getPassword();
-        if (id == null || password == null) return new ResponseEntity<>("아이디와 비밀번호를 입력해주세요.", HttpStatus.BAD_REQUEST);
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", id);
-        body.put("password", password);
-        //TODO 사용자로부터 받은 토큰 정보를 시그니쳐 유효성 검사를 한 후 JWT해석을 통해 사용자 정보를 가져오도록 해야 함.
-
-        AccountDto.Response response = new AccountDto.Response(responseDto);
-        Long shopId = account.getShopId();
-
-        Shop shop = null;
-
-        if(shopId !=null){
-            shop = shopService.get(shopId);
-        response.setShopInfo(shop.getId(), shop.getName());
+        try{
+            accountService.post(customUserDetails);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>("중복된 아이디 혹은 잘 못 입력하셨습니다.", HttpStatus.CONFLICT);
         }
-        if (shop == null || !shopService.isValidShop(shop)) {
-            response.setMessage("아직 회원가입 승인이 되지 않았습니다.");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-
-        // 마지막 접속 날짜 갱신
-        account.updateLog();
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        JwtResponse jwtResponse= generatedToken(customUserDetails);
+        return new ResponseEntity<>(jwtResponse, HttpStatus.CREATED);
     }
 
-//    @PostMapping(value = "/register", produces = "application/json;charset=UTF-8")
-//    public ResponseEntity<?> register(@RequestBody AccountDto.RegisterRequestDto requestDto) {
-//        String id = requestDto.getId();
-//        String password = requestDto.getPassword();
-//        String name = requestDto.getName();
-//        String role = requestDto.getRole();
-//        Long shopId = requestDto.getShopId();
-//
-//        String result =authApi.postAccount(id, password, name, role);; // Auth서버에 계정 등록
-//
-//        AccountDto.AuthLoginResponse responseDto = gson.fromJson(result, AccountDto.AuthLoginResponse.class);
-//        String accessToken = responseDto.getAccess_token();
-//        String refreshToken = responseDto.getRefresh_token();
-//        Long accessTokenExp = responseDto.getAccess_token_exp().getTime();
-//        Long refreshTokenExp = responseDto.getRefresh_token_exp().getTime();
-//
-//        // 계정 등록
-//        accountService.post(id, name, role, accessToken, refreshToken, accessTokenExp, refreshTokenExp, shopId);
-//
-//        // idm 서버 계정 등록
-//        idmApi.postAccount(id,name,role, shopId);
-//
-//        AccountDto.Response response = new AccountDto.Response(responseDto);
-//        return new ResponseEntity<>(response, HttpStatus.CREATED);
-//    }
+    @ApiOperation(value = "로그인처리", notes = "회원인증 후 로그인 여부반환")
+    @PostMapping("/users/login")
+    public ResponseEntity<?> login(@RequestBody AccountDto.Login req){
+
+        try{
+            Account account = accountService.login(req);
+            AccountDto.Response jwtResponse= generatedToken(userDetails);
+            return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+        }catch (Exception e){}
+        return new ResponseEntity<>("로그인 실패.", HttpStatus.UNAUTHORIZED);
+    }
+
+    private JwtResponse generatedToken(CustomUserDetails userDetails) {
+        UserTokenAndExpDto dto = jwtTokenProvider.createToken(userDetails);
+        final String access_token = dto.getToken();
+        final Date accessTokenExp = dto.getToken_exp();
+        UserTokenAndExpDto dto1 = jwtTokenProvider.createToken();
+        final String refresh_token = dto1.getToken();
+        final Date refreshTokenExp = dto1.getToken_exp();
+        JwtResponse jwtResponse = new JwtResponse(access_token, refresh_token, userDetails.getName(), userDetails.getRole(), accessTokenExp,refreshTokenExp);
+        return jwtResponse;
+    }
+
+    @ApiOperation(value = "회원 수정", notes = "회원정보를 수정한다")
+    @PatchMapping( "/users")
+    public ResponseEntity<?> modify(@ApiParam(value = "회원정보", required = true) @RequestBody UserDto userDto) {
+        long counts =0;
+
+        try{
+            counts = authService.updateUser(userDto);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>("중복된 아이디 혹은 잘 못 입력하셨습니다.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(counts, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "회원 삭제", notes = "회원정보를 삭제한다")
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> remove(@PathVariable String id){
+        try {
+            authService.removeUser(id);
+        }catch(Exception e){
+            log.error(e.getMessage());
+            return new ResponseEntity<>("삭제에 실패했습니다.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(value = "회원 수정", notes = "회원정보를 수정한다")
+    @DeleteMapping("/")
+    public ResponseEntity<?> removeMyInfo(@PathVariable String id){
+        //Authorization으로 체크 후 삭제.
+        return null;
+    }
 
 }

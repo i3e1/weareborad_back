@@ -24,6 +24,7 @@ import java.util.List;
 @Getter
 @ToString
 //@ToString(exclude = "shop")
+@Builder
 @NoArgsConstructor
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id" )
 //@JsonIdentityReference(alwaysAsId = true) //직렬화시 id로만 출력된다
@@ -69,25 +70,6 @@ public class Account implements UserDetails {
 
     @Column(name = "updated_time")
     private LocalDateTime accessTime;
-
-    @Builder
-    public Account(String username, String name, String role, String phone, LocalDateTime birthday, String email, String address, String addressDetail, String zipcode, Long accessTokenExp, Long refreshTokenExp, String accessToken, String refreshToken, Long shopId) {
-        this.username = username;
-        this.name = name;
-        this.role = role;
-        this.phone = phone;
-        this.birthday = birthday;
-        this.email = email;
-        this.address = address;
-        this.addressDetail = addressDetail;
-        this.zipcode=zipcode;
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.accessTokenExp = accessTokenExp;
-        this.refreshTokenExp = refreshTokenExp;
-        this.shopId = shopId;
-    }
-
 
 
     /**

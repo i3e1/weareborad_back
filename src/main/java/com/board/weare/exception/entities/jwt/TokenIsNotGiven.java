@@ -1,6 +1,7 @@
 package com.board.weare.exception.entities.jwt;
 
-import com.jsol.mcall.config.exception.BasicException;
+
+import com.board.weare.exception.BasicException;
 
 public class TokenIsNotGiven extends BasicException {
     public TokenIsNotGiven(String name) {

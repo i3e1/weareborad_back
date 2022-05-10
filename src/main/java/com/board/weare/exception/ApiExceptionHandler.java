@@ -1,6 +1,6 @@
 package com.board.weare.exception;
 
-import com.jsol.mcall.config.exception.storage.StorageException;
+import com.board.weare.exception.storage.StorageException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

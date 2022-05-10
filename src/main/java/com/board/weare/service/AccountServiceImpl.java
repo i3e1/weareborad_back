@@ -1,7 +1,10 @@
 package com.board.weare.service;
 
+import com.board.weare.config.jwt.JwtProvider;
 import com.board.weare.dto.AccountDto;
+import com.board.weare.dto.CustomUserDetails;
 import com.board.weare.entity.Account;
+import com.board.weare.exception.BadRequestException;
 import com.board.weare.exception.MyEntityNotFoundException;
 import com.board.weare.exception.UnauthorizedException;
 import com.board.weare.exception.entities.jwt.TokenExpiredException;
@@ -9,8 +12,12 @@ import com.board.weare.repository.AccountRepository;
 import com.board.weare.service.interfaces.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +31,10 @@ import java.util.Optional;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
     //    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final JwtProvider jwtProvider;
     private final AccountRepository accountRepository;
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public static Account getAccountFromSecurityContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -34,11 +44,14 @@ public class AccountServiceImpl implements AccountService {
         return (Account) principal;
     }
 
-    @Transactional(readOnly = true)
-    public Account getMyInfo() {
-        Account loginInfo = AccountServiceImpl.getAccountFromSecurityContext();
-        String id = loginInfo.getId();
-        return get(id);
+    @Transactional
+    public Account login(AccountDto.Login loginDto){
+        String username = loginDto.getUsername();
+        String password = loginDto.getPassword();
+        if (username == null || password == null) throw new BadRequestException("아이디/비밀번호는 필수입니다.");
+
+        jwtProvider.
+
     }
 
     @Transactional(readOnly = true)
@@ -70,23 +83,19 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Transactional
-    public Account post(
-            String username, String password, String name, String role,
-            String accessToken, String refreshToken, Long accessTokenExp, Long refreshTokenExp, Long shopId
-    ) {
-        if (!role.startsWith("ROLE_")) role = "ROLE_" + role + "_OWN"; // ROLE_로 시작하지 않으면 추가., 끝에 _OWN 을 붙여 관리자임을 표시
-        if (username == null) throw new NullPointerException("회원의 id는 필수입력입니다.");
-        if (name == null) throw new NullPointerException("회원의 name는 필수입력입니다.");
-        if (role == null) throw new NullPointerException("회원의 role은 필수입력입니다.");
+    public Account postAccount(AccountDto.Post req) {
+        String username = req.getUsername();
+        String password = req.getPassword();
+        String bcrypPassword =bCryptPasswordEncoder.encode(password);
+        String name = req.getName();
+        String phone = req.getPhone();
+        LocalDateTime birthday = req.getBirthday();
+        String role = req.getRole();
         Account account = Account.builder()
                 .username(username)
+                .password(bcrypPassword)
                 .name(name)
                 .role(role)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .accessTokenExp(accessTokenExp)
-                .refreshTokenExp(refreshTokenExp)
-                .shopId(shopId)
                 .build();
         return accountRepository.save(account);
     }
@@ -109,7 +118,6 @@ public class AccountServiceImpl implements AccountService {
 
         //  비밀번호를 바꿀건가요?
         String password = updateInfo.getPassword();
-        authApi.patchAccount(accountId, password, name, role);
     }
 
     @Transactional

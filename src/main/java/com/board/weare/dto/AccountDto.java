@@ -15,7 +15,7 @@ public class AccountDto {
 
     @Data @NoArgsConstructor @AllArgsConstructor @Builder
     public static class Info{
-        private String id;
+        private String username;
         private String name;
         private String role;
         private String phone;
@@ -41,11 +41,31 @@ public class AccountDto {
     }
 
     @Data @NoArgsConstructor
-    public static class LoginRequestDto{
+    public static class Login{
         @NotBlank
         private String username;
         @NotBlank
         private String password;
+    }
+
+    @Data @NoArgsConstructor
+    public static class Post{
+        @NotBlank
+        private String username;
+        @NotBlank
+        private String password;
+
+        private String name;
+
+        private String phone;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime birthday;
+
+        private String email;
+
+        // ROLE_USER ROLE_ADMIN ROLE_ROOT
+        private String role;
     }
 
     @Data @NoArgsConstructor
