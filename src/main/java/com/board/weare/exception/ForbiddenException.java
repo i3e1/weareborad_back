@@ -1,6 +1,7 @@
 package com.board.weare.exception;
 
-import com.jsol.mcall.service.AccountServiceImpl;
+
+import com.board.weare.service.AccountServiceImpl;
 
 public class ForbiddenException extends BasicException {
 

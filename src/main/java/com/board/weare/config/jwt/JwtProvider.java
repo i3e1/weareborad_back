@@ -1,5 +1,6 @@
 package com.board.weare.config.jwt;
 
+import com.board.weare.dto.JwtDto;
 import com.board.weare.entity.Account;
 import com.board.weare.exception.entities.jwt.TokenExpiredException;
 import com.board.weare.exception.entities.jwt.TokenIsNotGiven;
@@ -28,7 +29,9 @@ public class JwtProvider {
     private final AccountServiceImpl accountService;
 
     // 토큰 유효시간 30분
-    private long tokenValidTime = 30 * 60 * 1000L;
+    private final long tokenValidTime = 30 * 60 * 1000L;
+    // 재사용 14일
+    private final long refreshTokenValidMilisecond = 1000L * 60 * 60 * 24 * 14; // 14일 토큰 유효
 
     // 객체 초기화, secretKey를 Base64로 인코딩한다.
     @PostConstruct
@@ -48,6 +51,30 @@ public class JwtProvider {
                 .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
+    }
+
+    public JwtDto.Default createToken(Account account, boolean isRefresh){
+        Claims claims = Jwts.claims().setSubject(account.getUsername());
+        String name = account.getName();
+        String role = account.getRole();
+        claims.put("name", name);
+        claims.put("role", role);
+        Date now = new Date();
+        long exp = now.getTime() + (isRefresh ? tokenValidTime : refreshTokenValidMilisecond);
+        Date tokenExp = new Date(exp);
+        String jwt = Jwts.builder()
+                .setClaims(claims) // 데이터
+                .setIssuer("jwt server")
+                .setIssuedAt(now) // 토큰 발행일자
+                .setExpiration(tokenExp) // set refresh_token Expire Time 7일의 유효시간있음.
+                .signWith(SignatureAlgorithm.HS256, secretKey) // 암호화 알고리즘, secret값 세팅
+                .compact();
+        return JwtDto.Default.builder()
+                .token(jwt)
+                .exp(exp)
+                .name(name)
+                .role(role)
+                .build();
     }
 
     // Jwt 토큰에서 회원 구별 정보 추출

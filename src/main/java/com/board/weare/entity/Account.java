@@ -60,12 +60,6 @@ public class Account implements UserDetails {
     @Column(length = 10, nullable = false)
     private String zipcode = "";
 
-    /* jwt관련.. 지금은 쓰지 않는 중이다. 추후에 다시 살려야 할 듯 */
-    private String accessToken;
-    private String refreshToken;
-    private Long accessTokenExp;
-    private Long refreshTokenExp;
-
     private Long shopId;
 
     @Column(name = "updated_time")
@@ -99,15 +93,8 @@ public class Account implements UserDetails {
         if (birthday != null && !birthday.equals(this.birthday)) this.birthday = birthday;
     }
 
-    public void updateToken(String accessToken, String refreshToken, Long accessTokenExp, Long refreshTokenExp) {
-        if (accessToken!=null) this.accessToken = accessToken;
-        if (refreshToken!=null) this.refreshToken = refreshToken;
-        if (accessTokenExp!=null) this.accessTokenExp = accessTokenExp;
-        if (refreshTokenExp!=null) this.refreshTokenExp = refreshTokenExp;
-    }
-
-    public void updateShopId(Long shopId) {
-        if (shopId != null) this.shopId = shopId;
+    public void updatePassword(String pw) {
+        if (pw!=null) this.password = pw;
     }
 
     public void updateLog() {
@@ -142,47 +129,13 @@ public class Account implements UserDetails {
         return true;
     }
 
-    public boolean isNotJsol(){
-        return !isJsol();
+    public boolean isNotRoot(){
+        return !isRoot();
     }
 
-    public boolean isJsol(){
+    public boolean isRoot(){
         System.out.println("isJsol ? " +this.role.toUpperCase().startsWith("ROLE_JSOL"));
-        return this.role.toUpperCase().startsWith("ROLE_JSOL");
+        return this.role.toUpperCase().startsWith("ROLE_ROOT");
     }
 
-    public boolean isNotAgency(){
-        return !isAgency();
-    }
-
-    public boolean isAgency(){
-        System.out.println("isAgency ? " +this.role.toUpperCase().startsWith("ROLE_AGENCY"));
-        return this.role.toUpperCase().startsWith("ROLE_AGENCY");
-    }
-
-    public boolean isNotStore(){
-        return !isStore();
-    }
-
-    public boolean isStore(){
-        System.out.println("isStore ? " +this.role.toUpperCase().startsWith("ROLE_STORE"));
-        return this.role.toUpperCase().startsWith("ROLE_STORE");
-    }
-
-    public boolean isNotAgencyOwner(){
-        return !isAgencyOwner();
-    }
-
-    public boolean isAgencyOwner(){
-        return this.role.toUpperCase().equals("ROLE_AGENCY_OWN");
-    }
-
-
-    public boolean isNotStoreOwner(){
-        return !isStoreOwner();
-    }
-
-    public boolean isStoreOwner(){
-        return this.role.toUpperCase().equals("ROLE_STORE_OWN");
-    }
 }

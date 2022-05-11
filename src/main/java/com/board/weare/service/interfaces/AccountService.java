@@ -12,13 +12,9 @@ public interface AccountService {
 
     Account get(String id);
 
-    List<Account> getAll();
-
-    Account getByTokensWhenNotExpired(String accessToken, String refreshToken);
-
     Account postAccount(AccountDto.Post req);
 
-    void patch(AccountDto.UpdateInfo updateInfo);
+    Account patch(AccountDto.UpdateInfo updateInfo);
 
-    void delete(String id);
+    boolean delete(String id);
 }

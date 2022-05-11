@@ -64,10 +64,8 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.resolve(response.getStatus()));
     }
 
-
-
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiErrorResponse> DataIntegrityViolationException(DataIntegrityViolationException ex) {
+    public ResponseEntity<ApiErrorResponse> dataIntegrityViolationException(DataIntegrityViolationException ex) {
         logger.error(ex.getMessage());
         ApiErrorResponse response
                 = ApiErrorResponse
@@ -79,7 +77,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(BasicException.class)
-    public ResponseEntity<ApiErrorResponse> unauthorizedException(BasicException ex) {
+    public ResponseEntity<ApiErrorResponse> basicException(BasicException ex) {
         ApiErrorResponse response
                 = ApiErrorResponse
                 .create()

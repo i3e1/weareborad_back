@@ -25,7 +25,6 @@ public class AccountDto {
         private String address;
         private String addressDetail;
         private String zipcode;
-        private Long shopId;
 
         public Info(Account account){
             this.name = account.getName();
@@ -36,7 +35,6 @@ public class AccountDto {
             this.address = account.getAddress();
             this.addressDetail = account.getAddressDetail();
             this.zipcode = account.getZipcode();
-            this.shopId = account.getShopId();
         }
     }
 
@@ -95,7 +93,7 @@ public class AccountDto {
 
     @Data @NoArgsConstructor @AllArgsConstructor @Builder
     public static class UpdateInfo{
-        private String id;
+        private String username;
         private String password;
         private String name;
         private String role;
@@ -106,11 +104,6 @@ public class AccountDto {
         private String address;
         private String addressDetail;
         private String zipcode;
-        private String accessToken;
-        private String refreshToken;
-        private Long accessTokenExp;
-        private Long refreshTokenExp;
-        private Long shopId;
     }
 
     @Data @NoArgsConstructor @AllArgsConstructor
