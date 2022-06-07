@@ -1,6 +1,6 @@
 package com.board.weare.config.filter;
 
-import com.jsol.mcall.config.jwt.JwtProvider;
+import com.board.weare.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

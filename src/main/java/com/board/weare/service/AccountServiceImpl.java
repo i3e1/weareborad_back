@@ -9,9 +9,11 @@ import com.board.weare.exception.UnauthorizedException;
 import com.board.weare.exception.entities.jwt.TokenExpiredException;
 import com.board.weare.repository.AccountRepository;
 import com.board.weare.service.interfaces.AccountService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,10 +30,16 @@ import java.util.Optional;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
     //    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final JwtProvider jwtProvider;
-    private final AccountRepository accountRepository;
+
     @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private AccountRepository accountRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    public AccountServiceImpl(@Lazy BCryptPasswordEncoder bCryptPasswordEncoder){
+        // 순환참조 문제
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     public static Account getAccountFromSecurityContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -54,8 +62,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional(readOnly = true)
     public Account get(String id) {
-        Optional<Account> loginId = accountRepository.findById(id);
-        if (loginId.isPresent()) return loginId.get();
+        Optional<Account> accountOpt = accountRepository.findById(id);
+        if (accountOpt.isPresent()) return accountOpt.get();
         throw new MyEntityNotFoundException("account", "계정을 찾을 수 없습니다.");
     }
 
@@ -63,16 +71,18 @@ public class AccountServiceImpl implements AccountService {
     public Account postAccount(AccountDto.Post req) {
         String username = req.getUsername();
         String password = req.getPassword();
-        String bcrypPassword = bCryptPasswordEncoder.encode(password);
+        String bcryptPassword = bCryptPasswordEncoder.encode(password);
         String name = req.getName();
         String phone = req.getPhone();
         LocalDateTime birthday = req.getBirthday();
         String role = req.getRole();
         Account account = Account.builder()
                 .username(username)
-                .password(bcrypPassword)
+                .password(bcryptPassword)
                 .name(name)
                 .role(role)
+                .phone(phone)
+                .birthday(birthday)
                 .build();
         return accountRepository.save(account);
     }

@@ -26,7 +26,10 @@ spring:
   #    password:
   #    driver-class-name: org.h2.Driver
 
-  mvc:
+  mvc: 
+    pathmatch:
+      matching-strategy: ant_path_matcher
+      # swagger 3 <-> springboot 2.6 이상에서 문제 발생.. 임시
     format:
       date: yyyy-MM-dd
       date-time: yyyy-MM-dd HH:mm:ss

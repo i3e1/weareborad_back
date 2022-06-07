@@ -9,7 +9,7 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-
+// swagger <-> spring 2.6 이상 체크
 @Configuration
 public class SwaggerConfig {
 

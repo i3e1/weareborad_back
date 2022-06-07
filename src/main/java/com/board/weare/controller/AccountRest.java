@@ -2,11 +2,8 @@ package com.board.weare.controller;
 
 import com.board.weare.dto.AccountDto;
 import com.board.weare.entity.Account;
+import com.board.weare.exception.MyEntityNotFoundException;
 import com.board.weare.service.AccountServiceImpl;
-import com.jsol.mcall.config.exception.MyEntityNotFoundException;
-import com.jsol.mcall.dto.AccountDto;
-import com.jsol.mcall.entity.Account;
-import com.jsol.mcall.service.AccountServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,7 +30,8 @@ public class AccountRest {
     })
     @GetMapping("/account")
     public ResponseEntity<?> getMyInfo() {
-        Account account = accountService.getMyInfo();
+        Account myInfo = AccountServiceImpl.getAccountFromSecurityContext();
+        Account account = accountService.get(myInfo.getUsername());
         AccountDto.Info info = new AccountDto.Info(account);
         return new ResponseEntity<>(info, HttpStatus.OK);
     }

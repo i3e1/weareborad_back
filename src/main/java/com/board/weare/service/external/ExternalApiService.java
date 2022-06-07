@@ -1,6 +1,10 @@
 package com.board.weare.service.external;
 
 
+import com.board.weare.exception.BadRequestException;
+import com.board.weare.exception.DuplicateIdException;
+import com.board.weare.exception.ExternalApiRequestException;
+import com.board.weare.exception.UnauthorizedException;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

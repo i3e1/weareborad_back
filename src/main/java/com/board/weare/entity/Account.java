@@ -24,7 +24,6 @@ import java.util.List;
 @Getter
 @ToString
 //@ToString(exclude = "shop")
-@Builder
 @NoArgsConstructor
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id" )
 //@JsonIdentityReference(alwaysAsId = true) //직렬화시 id로만 출력된다
@@ -65,6 +64,20 @@ public class Account implements UserDetails {
     @Column(name = "updated_time")
     private LocalDateTime accessTime;
 
+    @Builder
+    public Account(String username, String password, String name, String role, String phone, LocalDateTime birthday, String email, String address, String addressDetail, String zipcode, Long shopId) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.role = role;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.email = email;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.zipcode = zipcode;
+        this.shopId = shopId;
+    }
 
     /**
      * accountDto를 통한 name, role 등 계정정보 변경
@@ -134,8 +147,8 @@ public class Account implements UserDetails {
     }
 
     public boolean isRoot(){
-        System.out.println("isJsol ? " +this.role.toUpperCase().startsWith("ROLE_JSOL"));
-        return this.role.toUpperCase().startsWith("ROLE_ROOT");
+        System.out.println("isRoot ? " +this.role.toUpperCase().contains("ROOT"));
+        return this.role.toUpperCase().contains("ROOT");
     }
 
 }

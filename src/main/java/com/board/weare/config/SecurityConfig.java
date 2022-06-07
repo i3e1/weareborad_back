@@ -1,8 +1,8 @@
 package com.board.weare.config;
 
 
-import com.jsol.mcall.config.filter.JwtAuthenticationFilter;
-import com.jsol.mcall.config.jwt.JwtProvider;
+import com.board.weare.config.filter.JwtAuthenticationFilter;
+import com.board.weare.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtProvider jwtProvider;
 
     @Autowired
-    private com.jsol.mcall.config.JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
