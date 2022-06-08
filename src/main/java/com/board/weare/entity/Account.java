@@ -40,14 +40,20 @@ public class Account implements UserDetails {
     @Column(length = 20, nullable = false)
     private String role;
 
-    @Column(length = 20, nullable = false)
-    private String phone="";
+    @Column(length = 4)
+    private String phone1="";
+
+    @Column(length = 4)
+    private String phone2="";
+
+    @Column(length = 4)
+    private String phone3="";
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Column//생년월일
     private LocalDateTime birthday = LocalDateTime.now();
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String email = "";
 
     @Column(length = 50)
@@ -56,28 +62,27 @@ public class Account implements UserDetails {
     @Column(length = 50)
     private String addressDetail = "";
 
-    @Column(length = 10, nullable = false)
-    private String zipcode = "";
-
-    private Long shopId;
-
     @Column(name = "updated_time")
     private LocalDateTime accessTime;
 
     @Builder
-    public Account(String username, String password, String name, String role, String phone, LocalDateTime birthday, String email, String address, String addressDetail, String zipcode, Long shopId) {
+    public Account(String username, String password, String name, String role, String phone1, String phone2, String phone3, LocalDateTime birthday, String email, String address, String addressDetail, LocalDateTime accessTime) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.role = role;
-        this.phone = phone;
+        this.phone1 = phone1;
+        this.phone2 = phone2;
+        this.phone3 = phone3;
         this.birthday = birthday;
         this.email = email;
         this.address = address;
         this.addressDetail = addressDetail;
-        this.zipcode = zipcode;
-        this.shopId = shopId;
+        this.accessTime = accessTime;
     }
+
+
+
 
     /**
      * accountDto를 통한 name, role 등 계정정보 변경
@@ -86,23 +91,25 @@ public class Account implements UserDetails {
     public void updateInfo(AccountDto.Info accountDto) {
         String name = accountDto.getName();
         String role = accountDto.getRole();
-        String phone = accountDto.getPhone();
+        String phone1 = accountDto.getPhone1();
+        String phone2 = accountDto.getPhone2();
+        String phone3 = accountDto.getPhone3();
         String email = accountDto.getEmail();
         String address = accountDto.getAddress();
         String addressDetail = accountDto.getAddressDetail();
-        String zipcode = accountDto.getZipcode();
         LocalDateTime birthday = accountDto.getBirthday();
-        updateInfo(name, role, phone, email, address, addressDetail, zipcode, birthday);
+        updateInfo(name, role, phone1, phone2, phone3, email, address, addressDetail, birthday);
     }
 
-    public void updateInfo(String name, String role, String phone, String email, String address, String addressDetail, String zipcode, LocalDateTime birthday) {
+    public void updateInfo(String name, String role, String phone1,String phone2,String phone3, String email, String address, String addressDetail, LocalDateTime birthday) {
         if (name!=null) this.name = name;
         if (role != null) this.role = role;
-        if (phone!=null) this.phone = phone;
+        if (phone1!=null) this.phone1 = phone1;
+        if (phone2!=null) this.phone2 = phone2;
+        if (phone3!=null) this.phone3 = phone3;
         if (email!=null) this.email = email;
         if (address!=null) this.address = address;
         if (addressDetail!=null) this.addressDetail = addressDetail;
-        if(zipcode!=null)this.zipcode = zipcode;
         if (birthday != null && !birthday.equals(this.birthday)) this.birthday = birthday;
     }
 

@@ -73,36 +73,46 @@ public class AccountServiceImpl implements AccountService {
         String password = req.getPassword();
         String bcryptPassword = bCryptPasswordEncoder.encode(password);
         String name = req.getName();
-        String phone = req.getPhone();
+        String phone1 = req.getPhone1();
+        String phone2 = req.getPhone2();
+        String phone3 = req.getPhone3();
         LocalDateTime birthday = req.getBirthday();
         String role = req.getRole();
+        String address = req.getAddress();
+        String addressDetail = req.getAddressDetail();
+        if(role==null)role = "ROLE_USER";
         Account account = Account.builder()
                 .username(username)
                 .password(bcryptPassword)
                 .name(name)
                 .role(role)
-                .phone(phone)
+                .phone1(phone1)
+                .phone2(phone2)
+                .phone3(phone3)
                 .birthday(birthday)
+                .address(address)
+                .addressDetail(addressDetail)
                 .build();
         return accountRepository.save(account);
     }
 
 
     @Transactional
-    public Account patch(AccountDto.UpdateInfo updateInfo) {
+    public Account patch(AccountDto.UpdateRequest updateInfo) {
         Account myInfo = getAccountFromSecurityContext();
         String username = myInfo.getUsername();
         Account account = get(username);
 
         String name = updateInfo.getName();
-        String phone = updateInfo.getPhone();
+        String phone1 = updateInfo.getPhone1();
+        String phone2 = updateInfo.getPhone2();
+        String phone3 = updateInfo.getPhone3();
         String email = updateInfo.getEmail();
         String role = updateInfo.getRole();
         String address = updateInfo.getAddress();
         String addressDetail = updateInfo.getAddressDetail();
-        String zipcode = updateInfo.getZipcode();
         LocalDateTime birthday = updateInfo.getBirthday();
-        account.updateInfo(name, role, phone, email, address, addressDetail, zipcode, birthday);
+        account.updateInfo(name, role, phone1, phone2, phone3, email, address, addressDetail, birthday);
 
         //  비밀번호를 바꿀건가요?
         String password = updateInfo.getPassword();

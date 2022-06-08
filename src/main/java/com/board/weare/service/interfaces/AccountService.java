@@ -12,7 +12,7 @@ public interface AccountService {
 
     Account postAccount(AccountDto.Post req);
 
-    Account patch(AccountDto.UpdateInfo updateInfo);
+    Account patch(AccountDto.UpdateRequest updateInfo);
 
     boolean delete(String id);
 }

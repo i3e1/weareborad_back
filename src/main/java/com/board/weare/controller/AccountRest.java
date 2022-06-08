@@ -52,7 +52,7 @@ public class AccountRest {
     }
 
     @PatchMapping("/account")
-    public ResponseEntity<?> update(@RequestBody AccountDto.UpdateInfo updateInfo) {
+    public ResponseEntity<?> update(@RequestBody AccountDto.UpdateRequest updateInfo) {
         accountService.patch(updateInfo);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

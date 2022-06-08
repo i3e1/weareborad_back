@@ -15,10 +15,10 @@ spring:
     secret: goblepol@$&
 
   datasource:
-    url: jdbc:mysql://14.45.108.71:3306/mcall?serverTimezone=UTC&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
-    username: mcallroot
-    password: jsoljsolution0720!!
-    driver-class-name: com.mysql.jdbc.Driver # com.mysql.jdbc.Driver deprecated
+    url: jdbc:mariadb://localhost:3306/weare_back?serverTimezone=UTC&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
+    username: m_lsb
+    password: leehj12!$
+    driver-class-name: org.mariadb.jdbc.Driver # com.mysql.jdbc.Driver deprecated
 
   #  datasource:
   #    url: jdbc:h2:tcp://localhost/~/querydsl
@@ -37,7 +37,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # 자동생성 설정 테스트(공부시 create권장.)
+      ddl-auto: create # 자동생성 설정 테스트(공부시 create권장.)
 
     properties:
       hibernate:

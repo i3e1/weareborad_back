@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 import java.util.Date;
 
 @RestController
@@ -36,9 +37,10 @@ public class LoginRest {
         gson = new GsonBuilder().create();
     }
 
+
     @ApiOperation(value = "일반 회원 등록", notes = "회원정보를 등록한다.")
-    @PostMapping("/user")
-    public ResponseEntity<?> save(@RequestBody AccountDto.Post userDto) {
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> signUp(@Valid @RequestBody AccountDto.Post userDto) {
         try {
             Account account = accountService.postAccount(userDto);
             JwtDto.Info jwt = generatedToken(account);
@@ -50,8 +52,8 @@ public class LoginRest {
     }
 
     @ApiOperation(value = "로그인처리", notes = "회원인증 후 로그인 여부반환")
-    @PostMapping("/users/login")
-    public ResponseEntity<?> login(@RequestBody AccountDto.Login req) {
+    @PostMapping("/sign-in")
+    public ResponseEntity<?> signIn(@RequestBody AccountDto.Login req) {
         Account account = accountService.login(req);
         JwtDto.Info jwt = generatedToken(account);
         return new ResponseEntity<>(jwt, HttpStatus.OK);
@@ -59,12 +61,9 @@ public class LoginRest {
 
     private JwtDto.Info generatedToken(Account account) {
         JwtDto.Default access = jwtProvider.createToken(account, false);
-        JwtDto.Default refresh = jwtProvider.createToken(account, true);
         return JwtDto.Info.builder()
                 .accessToken(access.getToken())
                 .accessTokenExp(new Date(access.getExp()))
-                .refreshToken(refresh.getToken())
-                .refreshTokenExp(new Date(refresh.getExp()))
                 .name(account.getName())
                 .role(access.getRole())
                 .build();
@@ -72,7 +71,7 @@ public class LoginRest {
 
     @ApiOperation(value = "회원 수정", notes = "회원정보를 수정한다")
     @PatchMapping("/users")
-    public ResponseEntity<?> modify(@ApiParam(value = "회원정보", required = true) @RequestBody AccountDto.UpdateInfo req) {
+    public ResponseEntity<?> modify(@ApiParam(value = "회원정보", required = true) @RequestBody AccountDto.UpdateRequest req) {
         try {
             Account account = accountService.patch(req);
             return new ResponseEntity<>(account, HttpStatus.OK);
