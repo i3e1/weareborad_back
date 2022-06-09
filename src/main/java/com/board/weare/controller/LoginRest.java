@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/v1")
@@ -42,9 +43,18 @@ public class LoginRest {
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody AccountDto.Post userDto) {
         try {
-            Account account = accountService.postAccount(userDto);
+            String username = userDto.getUsername();
+            Account account = null;
+            boolean created = false;
+            try{
+                account = accountService.get(username);
+            }catch(Exception e){
+                account = accountService.postAccount(userDto);
+                created = true;
+            }
             JwtDto.Info jwt = generatedToken(account);
-            return new ResponseEntity<>(jwt, HttpStatus.CREATED);
+            AccountDto.PostResponse response = new AccountDto.PostResponse(jwt, created);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity<>("중복된 아이디 혹은 잘 못 입력하셨습니다.", HttpStatus.CONFLICT);

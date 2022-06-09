@@ -79,6 +79,13 @@ public class AccountDto {
     }
 
     @Data
+    @NoArgsConstructor @AllArgsConstructor
+    public static class PostResponse{
+        JwtDto.Info jwt;
+        boolean created;
+    }
+
+    @Data
     @NoArgsConstructor
     public static class Response {
         private String name;

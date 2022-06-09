@@ -15,11 +15,9 @@ public class JwtDto {
     @Data @AllArgsConstructor @Builder
     public static class Info{
         private String accessToken;
-        private String refreshToken;
         private String name;
         private String role;
         private Date accessTokenExp;
-        private Date refreshTokenExp;
         private Object payload;
     }
 
