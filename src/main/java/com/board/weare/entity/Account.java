@@ -10,10 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,6 +61,9 @@ public class Account implements UserDetails {
 
     @Column(name = "updated_time")
     private LocalDateTime accessTime;
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Board> boards;
 
     @Builder
     public Account(String username, String password, String name, String role, String phone1, String phone2, String phone3, LocalDateTime birthday, String email, String address, String addressDetail, LocalDateTime accessTime) {

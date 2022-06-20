@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,7 +37,19 @@ public class BoardServiceImpl implements BoardService {
 
 
     @Override
-    public Optional<Board> get(String id) {
+    public Board getById(Long id) {
+        Optional<Board> boardOpt = findById(id);
+        if(boardOpt.isPresent())return boardOpt.get();
+        throw new MyEntityNotFoundException("board", "id로 조회 실패");
+    }
+
+    @Override
+    public List<BoardDto.Info> getAllByCategory(String category) {
+        return boardRepository.findByCategory(category);
+    }
+
+    @Override
+    public Optional<Board> findById(Long id) {
         return boardRepository.findById(id);
     }
 
@@ -63,16 +76,16 @@ public class BoardServiceImpl implements BoardService {
         return null;
     }
 
-    public boolean delete(String id) {
+    public boolean delete(Long id) {
         Account myInfo = AccountServiceImpl.getAccountFromSecurityContext();
 
         if (myInfo.isRoot() || myInfo.getUsername().equals(id)) {
-            Optional<Board> boardOpt = get(id);
+            Optional<Board> boardOpt = findById(id);
             if (boardOpt.isPresent()) {
                 boardRepository.delete(boardOpt.get());
                 return true;
             }
-        return false;
+            return false;
         }
         throw new ForbiddenException("게시글 조작 권한이 없습니다.");
     }
